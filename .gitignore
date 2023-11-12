@@ -1,2 +1,4 @@
 data/
 *.txt
+*.png
+__pycache__/
