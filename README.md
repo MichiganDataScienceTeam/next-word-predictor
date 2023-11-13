@@ -12,8 +12,12 @@ Our approaches included using a LSTM neural network, and a simple n-gram model. 
 Using a simple LSTM architecture, we trained a neural network on a Sherlock Holmes book. The predictions of the model were generally poor, and after many attempts of training and hyperparamter tuning, we failed to get the training accuracy above 25%. This motivated our search for other datasets, to see if we could achieve better performance.
 
 ### 2. `models/LSTM_amazon_reviews_model.ipynb`
+We move to a more expansive dataset - a set of Amazon technology reviews. The LSTM had comparative performance, but had significantly better validation metrics and made more sensible predictions.
 
-### 3. `models/ngram_model.ipynb`
+### 3. `models/GRU_amazon_reviews_model.ipynb`
+Surprisingly, switching the LSTM layer to a GRU layer led to a boost in performance. The model jumped to 30% accuracy, and made the best predictions we had seen yet. The model can be found [here](https://mdst-next-word.streamlit.app/).
+
+### 4. `models/ngram_model.ipynb`
 Using n-grams for predictions were never explicitly covered by the Fall '23 project, but is included in this repository for the sake of completeness. The Neural Net approaches all leveraged n-grams to generate input sequences that the models were trained on. But what if we cut out the neural net training process, and train the next word simply using next word probabilities derived from the n-grams themselves?
 
 It turns out that the model performs quite well, generating sequences of text that make sense, but are most times ripped off completely from the training data. The model also cannot generalize at all outside of the given dataset.
