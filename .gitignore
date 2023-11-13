@@ -1,5 +1,4 @@
 data/
-exports/
 *.txt
 *.png
 __pycache__/
