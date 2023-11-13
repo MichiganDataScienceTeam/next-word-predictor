@@ -1,8 +1,8 @@
 # Next Word Prediction - MDST Fall '23
 
 Project Leads:
-- (Amirali Danai)[https://www.linkedin.com/in/amiralidanai/]
-- (Jason Yen)[https://www.linkedin.com/in/jasonyen1/]
+- [Amirali Danai](https://www.linkedin.com/in/amiralidanai/)
+- [Jason Yen](https://www.linkedin.com/in/jasonyen1/)
 
 This is a repository containing the work done for the Next Word Prediction project at the Michigan Data Science during the Fall semester of 2023. The project's main objective was to leverage machine learning methods to reliably generate the next word, or next *n* words, given a sequence of text. Generating conversational-like text or using transformer architecture were outside the scope of the project.
 
