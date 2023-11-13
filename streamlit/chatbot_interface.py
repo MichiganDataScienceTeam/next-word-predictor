@@ -79,7 +79,7 @@ with st.sidebar:
 
 st.title("➱ Next Word Predictor") 
 st.divider()
-number = st.slider("Pick a number of words to predict", 1, 100)
+number = st.slider("Pick a number of words to predict", 1, 10)
 st.divider()
 if "messages" not in st.session_state:
     st.session_state["messages"] = [{"role": "assistant", "content": "Hey there!👋 What sequence would you like to predict?"}]
