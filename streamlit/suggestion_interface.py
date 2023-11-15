@@ -110,7 +110,7 @@ def import_shakespeare_lstm():
 @st.cache_resource
 def import_amazon_gru():
     model = tf.keras.models.load_model('exports/amazon_reviews_GRU.h5')
-    max_sequence_len = 199
+    max_sequence_len = 198
 
     file = open("exports/amzn_idx_to_word.pkl", 'rb')
     index_to_word = pickle.load(file)
