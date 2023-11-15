@@ -3,3 +3,5 @@ numpy
 scikit-learn
 tensorflow
 nltk
+keras_nlp
+keras_core
