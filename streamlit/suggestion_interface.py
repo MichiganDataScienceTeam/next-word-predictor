@@ -96,26 +96,26 @@ def setup():
 
 @st.cache_resource
 def import_shakespeare_lstm():
-    model = tf.keras.models.load_model('model/model.h5')
+    model = tf.keras.models.load_model('exports/sherlock_LSTM.h5')
     max_sequence_len = 122
 
-    with open('model/word_to_index.json', 'r') as json_file:
+    with open('exports/word_to_index.json', 'r') as json_file:
         word_to_index = json.loads(json_file.read())
-    with open('model/index_to_word.json', 'r') as json_file:
+    with open('exports/index_to_word.json', 'r') as json_file:
         index_to_word = json.loads(json_file.read())
 
-    return model, word_to_index, index_to_word, max_sequence_len
+    return model, index_to_word, word_to_index, max_sequence_len
 
 
 @st.cache_resource
 def import_amazon_gru():
-    model = tf.keras.models.load_model('amazon/amazon_reviews_GRU.h5')
-    max_sequence_len = 198
+    model = tf.keras.models.load_model('exports/amazon_reviews_GRU.h5')
+    max_sequence_len = 199
 
-    file = open("amazon/amzn_idx_to_word.pkl", 'rb')
+    file = open("exports/amzn_idx_to_word.pkl", 'rb')
     index_to_word = pickle.load(file)
     file.close()
-    file = open("amazon/amzn_word_to_idx.pkl", 'rb')
+    file = open("exports/amzn_word_to_idx.pkl", 'rb')
     word_to_index = pickle.load(file)
     file.close()
 
