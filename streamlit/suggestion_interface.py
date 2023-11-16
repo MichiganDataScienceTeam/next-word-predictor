@@ -3,6 +3,8 @@ import numpy as np
 import tensorflow as tf
 from keras.preprocessing.sequence import pad_sequences
 
+import regex as re
+
 import pickle
 import json
 
@@ -13,6 +15,10 @@ import os
 import keras_nlp
 import keras_core as keras
 import time
+
+
+def update_text(next_word):
+    st.session_state.input += ' ' + next_word
 
 
 def predict_next_words(model, text, max_sequence_len, word_to_index, index_to_word):
@@ -37,8 +43,6 @@ def predict_next_words(model, text, max_sequence_len, word_to_index, index_to_wo
 
 
 def predict_next_n_words(model, text, n, max_sequence_len, word_to_index, index_to_word):
-    predicted_sequences = []
-
     for i in range(5):
         temp_text = text
         predicted_sequence = []
@@ -61,7 +65,8 @@ def predict_next_n_words(model, text, n, max_sequence_len, word_to_index, index_
         predicted_sequence.append(predicted_word)
         temp_text += " " + predicted_word
 
-        for j in range(n-1):
+        j = 1
+        while j < n:
             # Tokenize the input string
             token_list = [word_to_index[word] for word in word_tokenize(temp_text) if word in word_to_index]
 
@@ -70,22 +75,82 @@ def predict_next_n_words(model, text, n, max_sequence_len, word_to_index, index_
 
             # Predict the token of the next word
             output = np.array(model.predict(token_list))[0]
-            predicted_idx = np.argmax(output, axis=-1)
+            
+            #predicted_idx = np.argmax(output, axis=-1)
+            predicted_idx = np.random.choice(np.argpartition(output, -1)[-1:], size=1)[0]
 
             # Convert the token back to a word
-            #predicted_word = index_to_word.get(predicted_idx[0], '')
             predicted_word = index_to_word[predicted_idx].lower()
 
             # Append the predicted word to the sequence and to the text (for the next iteration)
-            predicted_sequence.append(predicted_word)
+            
+            if predicted_word == predicted_sequence[-1]:
+                predicted_idx = np.argpartition(output, -2)[-2]
+                predicted_word = index_to_word[predicted_idx].lower()
+
+            if predicted_word == ',':
+                if predicted_sequence[-1] == '.' or predicted_sequence[-1] == '!' or \
+                   predicted_sequence[-1] == '?' or predicted_sequence[-1] == ':':
+                    predicted_sequence[-1] = ','
+            else:
+                predicted_sequence.append(predicted_word)
+                j += 1
+                
             temp_text += " " + predicted_word
-        predicted_sequences.append(' '.join(predicted_sequence))
 
-    return predicted_sequences
+        predicted_sequence = ' '.join(predicted_sequence)
+        predicted_sequence = predicted_sequence.replace(' ,', ',')
+        predicted_sequence = re.sub(r",+", ',', predicted_sequence)
+        predicted_sequence = predicted_sequence.replace(' .', '.')
+        predicted_sequence = predicted_sequence.replace(' !', '!')
+        predicted_sequence = predicted_sequence.replace(' ?', '?')
+        predicted_sequence = predicted_sequence.replace(' :', ':')
+        predicted_sequence = predicted_sequence.replace(" '", "'")
+
+        st.button(label=predicted_sequence, on_click=update_text, args=(predicted_sequence,), use_container_width=False, key=i)
 
 
-def update_text(next_word):
-    st.session_state.input += ' ' + next_word
+def color_slider():
+    st.markdown(
+        f''' 
+        <style> div.stSlider > div[data-baseweb = "slider"] > div[data-testid="stTickBar"] > div {{
+            background: rgb(1 1 1 / 0%); 
+        }} 
+        </style> 
+        <style> div.stSlider > div[data-baseweb="slider"] > div > div > div[role="slider"]{{
+            background-color: rgb(14, 38, 74); 
+            box-shadow: rgb(14 38 74 / 20%) 0px 0px 0px 0.2rem;
+        }} 
+        </style> 
+        <style> div.stSlider > div[data-baseweb="slider"] > div > div > div > div {{ 
+            color: rgb(14, 38, 74); 
+        }} 
+        </style> 
+        <style> div.stSlider > div[data-baseweb = "slider"] > div > div {{
+            background: linear-gradient(
+                to right, rgb(118, 17, 235) 0%, 
+                rgb(118, 17, 235) {float(num_words-1)/(max_words-1)*100}%, 
+                rgba(151, 166, 195, 0.25) {float(num_words-1)/(max_words-1)*100}%, 
+                rgba(151, 166, 195, 0.25) 100%
+            ); 
+        }} 
+        </style>
+        ''', 
+        unsafe_allow_html = True
+    )  
+
+
+def predict_with_gpt():
+    start = time.time()
+    gpt_prediction = st.session_state.gpt.generate(text, max_length=len(text)+150)
+    end = time.time()
+
+    #next_words = gpt_prediction.split(' ', len(text))[-1]
+    #st.write(next_words)
+
+    st.write(gpt_prediction)
+    st.write(f"Time: {end - start:.2f}s")
+
 
 # These functions run once
 @st.cache_resource
@@ -96,15 +161,15 @@ def setup():
 
 @st.cache_resource
 def import_shakespeare_lstm():
-    model = tf.keras.models.load_model('exports/sherlock_LSTM.h5')
+    model = tf.keras.models.load_model('models/LSTM_sherlock_model.h5')
     max_sequence_len = 122
 
-    with open('exports/word_to_index.json', 'r') as json_file:
+    with open('model/word_to_index.json', 'r') as json_file:
         word_to_index = json.loads(json_file.read())
-    with open('exports/index_to_word.json', 'r') as json_file:
+    with open('model/index_to_word.json', 'r') as json_file:
         index_to_word = json.loads(json_file.read())
 
-    return model, index_to_word, word_to_index, max_sequence_len
+    return model, word_to_index, index_to_word, max_sequence_len
 
 
 @st.cache_resource
@@ -156,9 +221,11 @@ st.title('Next Word Prediction')
 
 st.divider()
 
-num_words = st.slider(label='Number of words', min_value=1, max_value=20)
+max_words = 50
+num_words = st.slider(label='Number of words', min_value=1, max_value=max_words)
+#color_slider()
 
-text = st.text_input(label='', key='input', placeholder='Type here...')
+text = st.text_input(label='input', key='input', placeholder='Type here...', label_visibility="hidden")
 
 if text:
     if num_words == 1:
@@ -180,52 +247,9 @@ if text:
         with col5:
             st.button(next_words[4], on_click=update_text, args=(next_words[4],), use_container_width=True, key=4)
             #st.write(probs[4])
-   
-        start = time.time()
-        gpt_prediction = st.session_state.gpt.generate(text, max_length=len(text)+50)
-        end = time.time()
-
-        st.write(gpt_prediction)
-        st.write(f"Time: {end - start:.2f}s")
 
     else:
-        next_words = predict_next_n_words(model, text, num_words, max_sequence_len, word_to_index, index_to_word)
+        predict_next_n_words(model, text, num_words, max_sequence_len, word_to_index, index_to_word)
 
-        st.button(next_words[0], on_click=update_text, args=(next_words[0],), use_container_width=False, key=0)
-        st.button(next_words[1], on_click=update_text, args=(next_words[1],), use_container_width=False, key=1)
-        st.button(next_words[2], on_click=update_text, args=(next_words[2],), use_container_width=False, key=2)
-        st.button(next_words[3], on_click=update_text, args=(next_words[3],), use_container_width=False, key=3)
-        st.button(next_words[4], on_click=update_text, args=(next_words[4],), use_container_width=False, key=4)
-        
-        st.divider()
-
-        start = time.time()
-        gpt_prediction = st.session_state.gpt.generate(text, max_length=len(text)+150)
-        end = time.time()
-
-        #next_words = gpt_prediction.split(' ', len(text))[-1]
-        #st.write(next_words)
-
-        st.write(gpt_prediction)
-        st.write(f"Time: {end - start:.2f}s")
-
-# Ignore this
-def hide():
-    #elif num_words <= 10:
-    next_words = predict_next_n_words(model, text, num_words, max_sequence_len, word_to_index, index_to_word)
-
-    col1, col2 = st.columns(2)
-    with col1:
-        st.button(next_words[0], on_click=update_text, args=(next_words[0],), use_container_width=False, key=0)
-        st.button(next_words[1], on_click=update_text, args=(next_words[1],), use_container_width=False, key=1)
-        st.button(next_words[2], on_click=update_text, args=(next_words[2],), use_container_width=False, key=2)
-        st.button(next_words[3], on_click=update_text, args=(next_words[3],), use_container_width=False, key=3)
-        st.button(next_words[4], on_click=update_text, args=(next_words[4],), use_container_width=False, key=4)
-    
-    start = time.time()
-    gpt_prediction = st.session_state.gpt.generate(text, max_length=len(text)+50)
-    end = time.time()
-
-    with col2:
-        st.write(gpt_prediction)
-        st.write(f"Time: {end - start:.2f}s")    
+    st.divider()
+    #predict_with_gpt()
