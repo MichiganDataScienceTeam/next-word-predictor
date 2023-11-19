@@ -12,8 +12,8 @@ import nltk
 from nltk.tokenize import word_tokenize
 
 import os
-import keras_nlp
-import keras_core as keras
+# import keras_nlp
+# import keras_core as keras
 import time
 
 
@@ -161,7 +161,7 @@ def setup():
 
 @st.cache_resource
 def import_shakespeare_lstm():
-    model = tf.keras.models.load_model('models/LSTM_sherlock_model.h5')
+    model = tf.keras.models.load_model('model/model.h5')
     max_sequence_len = 122
 
     with open('model/word_to_index.json', 'r') as json_file:
@@ -174,13 +174,13 @@ def import_shakespeare_lstm():
 
 @st.cache_resource
 def import_amazon_gru():
-    model = tf.keras.models.load_model('exports/amazon_reviews_GRU.h5')
+    model = tf.keras.models.load_model('amazon/amazon_reviews_GRU.h5')
     max_sequence_len = 198
 
-    file = open("exports/amzn_idx_to_word.pkl", 'rb')
+    file = open("amazon/amzn_idx_to_word.pkl", 'rb')
     index_to_word = pickle.load(file)
     file.close()
-    file = open("exports/amzn_word_to_idx.pkl", 'rb')
+    file = open("amazon/amzn_word_to_idx.pkl", 'rb')
     word_to_index = pickle.load(file)
     file.close()
 
@@ -189,6 +189,7 @@ def import_amazon_gru():
 
 @st.cache_resource
 def import_gpt():
+    """
     # Pretrained model
     preprocessor = keras_nlp.models.GPT2CausalLMPreprocessor.from_preset(
         "gpt2_base_en",
@@ -199,20 +200,24 @@ def import_gpt():
     )
 
     st.session_state.gpt = gpt2_lm
+    """
 
 
 setup()
 model, index_to_word, word_to_index, max_sequence_len = import_amazon_gru()
 
-if 'gpt' not in st.session_state:
-    preprocessor = keras_nlp.models.GPT2CausalLMPreprocessor.from_preset(
-        "gpt2_base_en",
-        sequence_length=128,
-    )
-    gpt2_lm = keras_nlp.models.GPT2CausalLM.from_preset(
-        "gpt2_base_en", preprocessor=preprocessor
-    )
-    st.session_state.gpt = gpt2_lm
+def hide():
+    """
+    if 'gpt' not in st.session_state:
+        preprocessor = keras_nlp.models.GPT2CausalLMPreprocessor.from_preset(
+            "gpt2_base_en",
+            sequence_length=128,
+        )
+        gpt2_lm = keras_nlp.models.GPT2CausalLM.from_preset(
+            "gpt2_base_en", preprocessor=preprocessor
+        )
+        st.session_state.gpt = gpt2_lm
+    """
 
 #import_gpt()
 #compile_compute_graph()
