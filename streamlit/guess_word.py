@@ -84,12 +84,12 @@ with st.sidebar:
         )
     st.divider()
 
-model = tf.keras.models.load_model('amazon/amazon_reviews_GRU.h5')
+model = tf.keras.models.load_model('exports/amazon_reviews_GRU.h5')
 max_sequence_len = 198
 
-with open('amazon/amzn_idx_to_word.pkl', 'rb') as handle:
+with open('exports/amzn_idx_to_word.pkl', 'rb') as handle:
     index_to_word = pickle.load(handle)
-with open('amazon/amzn_word_to_idx.pkl', 'rb') as handle:
+with open('exports/amzn_word_to_idx.pkl', 'rb') as handle:
     word_to_index = pickle.load(handle)
 
 if prompt_type == "Generated Prompt":
