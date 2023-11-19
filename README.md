@@ -19,7 +19,7 @@ Using a simple LSTM architecture, we trained a neural network on a Sherlock Holm
 We move to a more expansive dataset - a set of Amazon technology reviews. The LSTM had comparative performance, but had significantly better validation metrics and made more sensible predictions.
 
 ### 3. `models/GRU_amazon_reviews_model.ipynb`
-Surprisingly, switching the LSTM layer to a GRU layer led to a boost in performance. The model jumped to 30% accuracy, and made the best predictions we had seen yet.
+Surprisingly, switching the LSTM layer to a GRU layer led to a boost in performance. The model jumped to 30% accuracy, and made the best predictions we had seen yet. After reducing the learning rate, we saw a rise to 50% accuracy.
 
 ### 4. `models/ngram_model.ipynb`
 Using n-grams for predictions were never explicitly covered by the Fall '23 project, but is included in this repository for the sake of completeness. The Neural Net approaches all leveraged n-grams to generate input sequences that the models were trained on. But what if we cut out the neural net training process, and train the next word simply using next word probabilities derived from the n-grams themselves?
