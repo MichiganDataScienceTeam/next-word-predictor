@@ -27,7 +27,7 @@ Using n-grams for predictions were never explicitly covered by the Fall '23 proj
 It turns out that the model performs quite well, generating sequences of text that make sense, but are most times ripped off completely from the training data. The model also cannot generalize at all outside of the given dataset.
 
 ### Conclusions
-Surprisingly, LSTMs performed quite poorly. We would recommend using Transformer architecture to obtain competitive results in next word prediction. Nonetheless, the project was a positive learning experience, covering topics from preprocessing with Regex to (manual) hyperparameter tuning of Neural Networks.
+The shortcomings of RNN methods make it abundantly clearly why Transformers are the contemporary architecture used for Large Language Models. The project was a positive learning experience, covering topics from preprocessing with Regex to (manual) hyperparameter tuning of Neural Networks. Future iterations of the project should leverage Transformers to gain a more comprehensive overview of next word prediction algorithms.
 
 ## Streamlit
 
